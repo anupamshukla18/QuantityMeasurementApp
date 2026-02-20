@@ -1,0 +1,12 @@
+# Eclipse / STS
+.metadata/
+.classpath
+.project
+.settings/
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
