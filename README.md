@@ -117,3 +117,61 @@ Feet and Inches had identical logic.
 Recognized need for refactoring (DRY violation).
 
 Adding features without modifying logic
+
+## 🔵 UC3 — Refactor to Generic Length Class
+🎯 Goal
+
+Remove duplication by introducing a generic measurement model.
+
+🛠 Refactoring Done
+
+Removed:
+
+❌ Feet class
+
+❌ Inches class
+
+Introduced:
+
+✅ Length class
+
+✅ LengthUnit enum
+
+🧠 Core Design Change
+
+Instead of multiple classes:
+
+Feet
+Inches
+
+We created one generic model:
+
+Length(value, LengthUnit)
+📐 Base Unit Concept
+
+All units converted internally to INCHES (base unit).
+
+FEET  → 12 inches
+INCHES → 1 inch
+
+Added method:
+
+convertToBaseUnit()
+🧪 Tests Covered
+
+✔ Feet = Feet
+✔ Inches = Inches
+✔ 1 Foot = 12 Inches
+✔ Symmetry
+✔ Transitive equality
+✔ equals contract validation
+
+🧠 Learning Outcome
+
+Refactoring safely using tests
+
+Generic design
+
+Domain modeling
+
+DRY principle
