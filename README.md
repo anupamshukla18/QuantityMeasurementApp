@@ -365,3 +365,45 @@ Explicit parameter design
 Floating-point precision handling
 
 Robust validation & exception handling
+
+## 📘 UC8 – Refactoring Unit Enum to Standalone Class
+🔹 Overview
+
+UC8 refactors the architecture by extracting LengthUnit enum from the Length class into a standalone top-level enum.
+This follows the Single Responsibility Principle (SRP) and makes the design scalable for future measurement types (Weight, Volume, Temperature).
+
+🔹 What Changed in UC8
+
+LengthUnit moved to its own class.
+
+All conversion logic is now handled inside LengthUnit.
+
+Length class now focuses only on:
+
+equality
+
+conversion delegation
+
+addition operations
+
+Circular dependency risk removed.
+
+All UC1 → UC7 functionality works without any change.
+
+🔹 New Capabilities
+
+Units now handle:
+
+convertToBaseUnit()
+
+convertFromBaseUnit()
+
+Cleaner architecture & better separation of concerns.
+
+Easy to add new measurement categories in future.
+
+🔹 Result
+
+No breaking changes.
+
+All previous tests pass.
