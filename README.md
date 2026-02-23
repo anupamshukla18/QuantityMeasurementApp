@@ -175,3 +175,41 @@ Generic design
 Domain modeling
 
 DRY principle
+
+## 🟣 UC4 — Add New Units (Extensibility Proof)
+🎯 Goal
+
+Prove that the design is scalable by adding new units without modifying core logic.
+
+➕ New Units Added
+
+YARDS
+
+CENTIMETERS
+
+Updated enum only — no logic changes.
+
+📐 Conversion Factors
+Unit	Inches
+1 Foot	12
+1 Yard	36
+1 Inch	1
+1 cm	0.393701
+🧪 Tests Added
+
+✔ Yard = Yard
+✔ Yard = Feet
+✔ Yard = Inches
+✔ Feet = Yard (symmetry)
+✔ Inches = Yard (symmetry)
+✔ Centimeter = Inches
+✔ Centimeter ≠ Feet
+✔ Transitive property
+
+🧠 Learning Outcome
+
+Extensible architecture
+
+Open/Closed Principle
+
+Adding features without modifying logic
