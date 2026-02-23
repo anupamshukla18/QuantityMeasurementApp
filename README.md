@@ -213,3 +213,47 @@ Extensible architecture
 Open/Closed Principle
 
 Adding features without modifying logic
+
+## 🔵 UC5 — Unit Conversion
+🎯 Goal
+
+Add the ability to convert length from one unit to another.
+
+Until UC4, the app could only compare units.
+UC5 introduces an explicit conversion API.
+
+⚙️ Features Added
+
+Static conversion method
+
+convert(value, fromUnit, toUnit)
+
+Instance conversion method in Length class
+
+length.convertTo(targetUnit)
+
+Overloaded helper methods for easy usage.
+
+🧪 Test Coverage
+
+Feet ↔ Inches conversion
+
+Yards ↔ Inches conversion
+
+Centimeters ↔ Inches conversion
+
+Zero & negative values
+
+Round-trip conversion
+
+Null & NaN validation
+
+🧠 Learning Outcome
+
+UC5 demonstrates:
+
+Reusable design from previous UCs
+
+Clean API design
+
+Validation & edge-case handling
