@@ -257,3 +257,50 @@ Reusable design from previous UCs
 Clean API design
 
 Validation & edge-case handling
+
+## UC6 – Addition of Two Length Units
+Overview
+
+UC6 extends the Quantity Measurement App by adding addition operations between two length measurements.
+Users can now add values with same or different units and get the result in the unit of the first operand.
+
+Example:
+
+1 Foot + 12 Inches = 2 Feet
+
+What was implemented
+
+Added add() method in Length class
+
+Supports addition across units:
+
+Feet, Inches, Yards, Centimeters
+
+Uses base unit normalization (inches) before addition
+
+Returns a new immutable Length object
+
+Maintains floating-point precision using rounding
+
+Ensures input validation and error handling
+
+Key Features
+
+Same-unit addition (Feet + Feet)
+
+Cross-unit addition (Feet + Inches, Yards + Feet, etc.)
+
+Result returned in unit of first operand
+
+Supports zero, negative, large and small values
+
+Null and invalid inputs throw exceptions
+
+Addition follows commutative property
+
+Example Usage
+Length l1 = new Length(1, Length.LengthUnit.FEET);
+Length l2 = new Length(12, Length.LengthUnit.INCHES);
+
+Length result = l1.add(l2);
+System.out.println(result); // 2.00 FEET
