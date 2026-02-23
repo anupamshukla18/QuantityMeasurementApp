@@ -2,10 +2,10 @@ package com.apps.quantitymeasurement;
 
 public class Length {
 
-	private double value;
-	private LengthUnit unit;
+	private final double value;
+	private final LengthUnit unit;
 
-	// Enum inside class
+	// Base unit = INCHES
 	public enum LengthUnit {
 		FEET(12.0), INCHES(1.0), YARDS(36.0), CENTIMETERS(0.393701);
 
@@ -20,8 +20,13 @@ public class Length {
 		}
 	}
 
-	// Constructor
 	public Length(double value, LengthUnit unit) {
+		if (unit == null)
+			throw new IllegalArgumentException("Unit cannot be null");
+
+		if (Double.isNaN(value) || Double.isInfinite(value))
+			throw new IllegalArgumentException("Invalid numeric value");
+
 		this.value = value;
 		this.unit = unit;
 	}
@@ -31,31 +36,34 @@ public class Length {
 		return value * unit.getConversionFactor();
 	}
 
-	// Compare method
-	public boolean compare(Length thatLength) {
-		return Double.compare(this.convertToBaseUnit(), thatLength.convertToBaseUnit()) == 0;
+	private boolean compare(Length other) {
+		double a = this.convertToBaseUnit();
+		double b = other.convertToBaseUnit();
+		return Math.abs(a - b) < 0.0001;
 	}
 
-	// equals() override
 	@Override
 	public boolean equals(Object obj) {
-
 		if (this == obj)
 			return true;
-
 		if (obj == null || getClass() != obj.getClass())
 			return false;
-
-		Length that = (Length) obj;
-
-		return compare(that);
+		Length other = (Length) obj;
+		return compare(other);
 	}
 
-	// main for standalone testing
-	public static void main(String[] args) {
-		Length length1 = new Length(1.0, LengthUnit.FEET);
-		Length length2 = new Length(12.0, LengthUnit.INCHES);
+	// UC5 NEW FEATURE → Instance conversion
+	public Length convertTo(LengthUnit targetUnit) {
+		if (targetUnit == null)
+			throw new IllegalArgumentException("Target unit cannot be null");
 
-		System.out.println("Are lengths equal? " + length1.equals(length2));
+		double baseValue = convertToBaseUnit();
+		double convertedValue = baseValue / targetUnit.getConversionFactor();
+		return new Length(convertedValue, targetUnit);
+	}
+
+	@Override
+	public String toString() {
+		return value + " " + unit;
 	}
 }
