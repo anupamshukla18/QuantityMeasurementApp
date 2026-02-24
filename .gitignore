@@ -5,6 +5,10 @@
 .settings/
 *.class
 
+# Maven
+target/
+bin/
+
 # Log files
 *.log
 
