@@ -45,7 +45,7 @@ main → stable production code
 
 dev → integration branch
 
-feature/UCx-* → individual feature branches
+feature/UCx-\* → individual feature branches
 
 Each UC was:
 
@@ -58,7 +58,9 @@ Pushed & PR created
 Merged into dev
 
 📚 USE CASE IMPLEMENTATION
+
 ## 🟢 UC1 — Feet Equality
+
 🎯 Goal
 
 Compare two Feet measurements for equality.
@@ -92,6 +94,7 @@ Understanding equality contract
 First step of TDD
 
 ## 🟢 UC2 — Inches Equality
+
 🎯 Goal
 
 Support Inches unit in addition to Feet.
@@ -119,6 +122,7 @@ Recognized need for refactoring (DRY violation).
 Adding features without modifying logic
 
 ## 🔵 UC3 — Refactor to Generic Length Class
+
 🎯 Goal
 
 Remove duplication by introducing a generic measurement model.
@@ -151,7 +155,7 @@ Length(value, LengthUnit)
 
 All units converted internally to INCHES (base unit).
 
-FEET  → 12 inches
+FEET → 12 inches
 INCHES → 1 inch
 
 Added method:
@@ -177,6 +181,7 @@ Domain modeling
 DRY principle
 
 ## 🟣 UC4 — Add New Units (Extensibility Proof)
+
 🎯 Goal
 
 Prove that the design is scalable by adding new units without modifying core logic.
@@ -190,11 +195,11 @@ CENTIMETERS
 Updated enum only — no logic changes.
 
 📐 Conversion Factors
-Unit	Inches
-1 Foot	12
-1 Yard	36
-1 Inch	1
-1 cm	0.393701
+Unit Inches
+1 Foot 12
+1 Yard 36
+1 Inch 1
+1 cm 0.393701
 🧪 Tests Added
 
 ✔ Yard = Yard
@@ -215,6 +220,7 @@ Open/Closed Principle
 Adding features without modifying logic
 
 ## 🔵 UC5 — Unit Conversion
+
 🎯 Goal
 
 Add the ability to convert length from one unit to another.
@@ -259,6 +265,7 @@ Clean API design
 Validation & edge-case handling
 
 ## UC6 – Addition of Two Length Units
+
 Overview
 
 UC6 extends the Quantity Measurement App by adding addition operations between two length measurements.
@@ -306,6 +313,7 @@ Length result = l1.add(l2);
 System.out.println(result); // 2.00 FEET
 
 ## UC7 – Addition with Target Unit Specification
+
 Overview
 
 UC7 extends the length addition feature by allowing the caller to explicitly choose the unit of the result.
@@ -350,10 +358,10 @@ Maintains backward compatibility with UC6
 Validates null units and invalid inputs
 
 Example
-Input	Target Unit	Result
-1 ft + 12 in	FEET	2 ft
-1 ft + 12 in	INCHES	24 in
-1 ft + 12 in	YARDS	0.667 yd
+Input Target Unit Result
+1 ft + 12 in FEET 2 ft
+1 ft + 12 in INCHES 24 in
+1 ft + 12 in YARDS 0.667 yd
 Concepts Covered
 
 Method Overloading
@@ -367,6 +375,7 @@ Floating-point precision handling
 Robust validation & exception handling
 
 ## 📘 UC8 – Refactoring Unit Enum to Standalone Class
+
 🔹 Overview
 
 UC8 refactors the architecture by extracting LengthUnit enum from the Length class into a standalone top-level enum.
@@ -409,6 +418,7 @@ No breaking changes.
 All previous tests pass.
 
 ## UC9- Addition of Weight Measurement
+
 📌 Feature Added
 
 UC9 extends the Quantity Measurement App by introducing a new measurement category: Weight.
@@ -420,10 +430,10 @@ Length (existing UC1–UC8)
 Weight (new in UC9)
 
 ⚖️ Supported Weight Units
-Unit	Base Conversion
-Kilogram (kg)	Base unit
-Gram (g)	1 kg = 1000 g
-Pound (lb)	1 lb = 0.453592 kg
+Unit Base Conversion
+Kilogram (kg) Base unit
+Gram (g) 1 kg = 1000 g
+Pound (lb) 1 lb = 0.453592 kg
 🚀 Capabilities Implemented
 1️⃣ Equality Comparison
 
@@ -596,3 +606,37 @@ Cross-category safety
 Precision & immutability
 
 This UC proves the system is open for extension and closed for modification (OCP).
+
+## UC12 – Subtraction & Division Support
+
+In this use case, we enhanced the generic Quantity system by adding arithmetic operations beyond addition.
+
+Features Added
+
+subtract(Quantity<U> other)
+
+subtract(Quantity<U> other, U targetUnit)
+
+divide(Quantity<U> other)
+
+Key Improvements
+
+Supports subtraction across compatible units
+
+Supports subtraction with explicit target unit
+
+Supports division (returns ratio as double)
+
+Cross-category safety maintained (Length ≠ Weight ≠ Volume)
+
+Division by zero handled using ArithmeticException
+
+Improved output readability using overridden toString()
+
+Design Impact
+
+No architectural change required
+
+Generic design remains scalable
+
+Fully backward compatible with UC1–UC11
