@@ -640,3 +640,50 @@ No architectural change required
 Generic design remains scalable
 
 Fully backward compatible with UC1–UC11
+
+## 📄 UC13 – Centralized Arithmetic Logic (DRY Refactor)
+🎯 Objective
+
+Refactor arithmetic operations in Quantity class to remove code duplication and enforce the DRY (Don’t Repeat Yourself) principle while keeping behaviour unchanged.
+
+✨ Enhancements
+
+Introduced ArithmeticOperation enum to centralize arithmetic logic.
+
+Added validateArithmeticOperands() to unify validation across operations.
+
+Added performBaseArithmetic() helper to execute arithmetic in base units.
+
+All public APIs remain unchanged (backward compatible with UC12).
+
+➕ Refactored Operations
+
+Addition
+
+Subtraction
+
+Division
+
+All now delegate to centralized helper methods.
+
+🧪 Testing
+
+New tests added to verify:
+
+Helper delegation
+
+Enum-based arithmetic dispatch
+
+Validation consistency across operations
+
+Backward compatibility with UC12 behaviour
+
+All tests passing ✅
+
+🏁 Outcome
+
+Code duplication removed
+
+Improved maintainability & scalability
+
+Ready for future arithmetic operations (multiply, modulo, etc.)
