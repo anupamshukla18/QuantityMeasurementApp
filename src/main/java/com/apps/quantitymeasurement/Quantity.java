@@ -73,6 +73,61 @@ public class Quantity<U extends IMeasurable> {
 		return new Quantity<>(result, targetUnit);
 	}
 
+	// subtract using first operand unit
+	public Quantity<U> subtract(Quantity<U> other) {
+		if (other == null)
+			throw new IllegalArgumentException("Other quantity cannot be null");
+
+		if (!unit.getClass().equals(other.unit.getClass()))
+			throw new IllegalArgumentException("Incompatible unit types");
+
+		double base1 = unit.convertToBaseUnit(value);
+		double base2 = other.unit.convertToBaseUnit(other.value);
+
+		double resultBase = base1 - base2;
+
+		double result = unit.convertFromBaseUnit(resultBase);
+		result = Math.round(result * 100.0) / 100.0; // rounding
+
+		return new Quantity<>(result, unit);
+	}
+
+	// subtract using target unit
+	public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+		if (other == null || targetUnit == null)
+			throw new IllegalArgumentException("Invalid input");
+
+		if (!unit.getClass().equals(other.unit.getClass()))
+			throw new IllegalArgumentException("Incompatible unit types");
+
+		double base1 = unit.convertToBaseUnit(value);
+		double base2 = other.unit.convertToBaseUnit(other.value);
+
+		double resultBase = base1 - base2;
+
+		double result = targetUnit.convertFromBaseUnit(resultBase);
+		result = Math.round(result * 100.0) / 100.0;
+
+		return new Quantity<>(result, targetUnit);
+	}
+
+	// division returns ratio
+	public double divide(Quantity<U> other) {
+		if (other == null)
+			throw new IllegalArgumentException("Other quantity cannot be null");
+
+		if (!unit.getClass().equals(other.unit.getClass()))
+			throw new IllegalArgumentException("Incompatible unit types");
+
+		double base1 = unit.convertToBaseUnit(value);
+		double base2 = other.unit.convertToBaseUnit(other.value);
+
+		if (base2 == 0)
+			throw new ArithmeticException("Division by zero");
+
+		return base1 / base2;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -92,5 +147,5 @@ public class Quantity<U extends IMeasurable> {
 	@Override
 	public String toString() {
 		return value + " " + unit.getUnitName();
-	} 
+	}
 }
