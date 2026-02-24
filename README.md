@@ -687,3 +687,49 @@ Code duplication removed
 Improved maintainability & scalability
 
 Ready for future arithmetic operations (multiply, modulo, etc.)
+
+## UC14 – Temperature Measurement (Non-Arithmetic Quantity)
+
+Overview:
+In this UC we extended the Quantity Measurement App to support Temperature units while enforcing that temperature does NOT support arithmetic operations (add, subtract, divide).
+This demonstrates how to safely introduce new measurement categories with different behavior using interfaces and functional programming.
+
+Key Enhancements:
+
+Added new measurement category Temperature
+
+Supported units:
+
+Celsius
+
+Fahrenheit
+
+Kelvin
+
+Implemented temperature conversion formulas:
+
+°C ↔ °F
+
+°C ↔ K
+
+°F ↔ K
+
+Introduced SupportsArithmetic functional interface
+
+Arithmetic operations now:
+
+✅ Allowed → Length, Weight, Volume
+
+❌ Blocked → Temperature (throws UnsupportedOperationException)
+
+Added 40+ unit tests validating:
+
+Equality across temperature units
+
+Conversion accuracy
+
+Round-trip conversion
+
+Extreme values & precision
+
+Unsupported arithmetic validation
