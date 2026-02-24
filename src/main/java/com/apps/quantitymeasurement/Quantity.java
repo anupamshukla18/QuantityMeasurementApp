@@ -72,12 +72,18 @@ public class Quantity<U extends IMeasurable> {
 			throw new IllegalArgumentException("Target unit cannot be null");
 	}
 
-	// Core Arithmetic Engine
-	private double performBaseArithmetic(Quantity<U> other, ArithmeticOperation operation) {
+	// xuz central arithmetic executor (UC14 updated)
+	private double performBaseArithmetic(Quantity<U> other, U targetUnit, ArithmeticOperation operation) {
 
+		// UC14 NEW CHECK — verify arithmetic supported
+		this.unit.validateOperationSupport(operation.name());
+		other.unit.validateOperationSupport(operation.name());
+
+		// convert both quantities to base unit
 		double thisBase = this.unit.convertToBaseUnit(this.value);
 		double otherBase = other.unit.convertToBaseUnit(other.value);
 
+		// perform arithmetic using enum
 		return operation.compute(thisBase, otherBase);
 	}
 
@@ -87,9 +93,21 @@ public class Quantity<U extends IMeasurable> {
 	}
 
 	public Quantity<U> convertTo(U targetUnit) {
+
 		if (targetUnit == null)
 			throw new IllegalArgumentException("Target unit cannot be null");
 
+		// UC14 SPECIAL HANDLING FOR TEMPERATURE
+		if (unit instanceof TemperatureUnit && targetUnit instanceof TemperatureUnit) {
+
+			TemperatureUnit source = (TemperatureUnit) unit;
+			TemperatureUnit target = (TemperatureUnit) targetUnit;
+
+			double convertedValue = source.convertTo(this.value, target);
+			return new Quantity<>(convertedValue, targetUnit);
+		}
+
+		// Old logic for Length/Weight/Volume
 		double baseValue = toBaseUnit();
 		double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
 
@@ -100,7 +118,7 @@ public class Quantity<U extends IMeasurable> {
 	public Quantity<U> add(Quantity<U> other) {
 		validateArithmeticOperands(other, null, false);
 
-		double baseResult = performBaseArithmetic(other, ArithmeticOperation.ADD);
+		double baseResult = performBaseArithmetic(other, this.unit, ArithmeticOperation.ADD);
 		double finalValue = this.unit.convertFromBaseUnit(baseResult);
 
 		return new Quantity<>(roundTwoDecimals(finalValue), this.unit);
@@ -109,7 +127,7 @@ public class Quantity<U extends IMeasurable> {
 	public Quantity<U> add(Quantity<U> other, U targetUnit) {
 		validateArithmeticOperands(other, targetUnit, true);
 
-		double baseResult = performBaseArithmetic(other, ArithmeticOperation.ADD);
+		double baseResult = performBaseArithmetic(other, targetUnit, ArithmeticOperation.ADD);
 		double finalValue = targetUnit.convertFromBaseUnit(baseResult);
 
 		return new Quantity<>(roundTwoDecimals(finalValue), targetUnit);
@@ -119,7 +137,7 @@ public class Quantity<U extends IMeasurable> {
 	public Quantity<U> subtract(Quantity<U> other) {
 		validateArithmeticOperands(other, null, false);
 
-		double baseResult = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+		double baseResult = performBaseArithmetic(other, this.unit, ArithmeticOperation.SUBTRACT);
 		double finalValue = this.unit.convertFromBaseUnit(baseResult);
 
 		return new Quantity<>(roundTwoDecimals(finalValue), this.unit);
@@ -128,7 +146,7 @@ public class Quantity<U extends IMeasurable> {
 	public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
 		validateArithmeticOperands(other, targetUnit, true);
 
-		double baseResult = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+		double baseResult = performBaseArithmetic(other, targetUnit, ArithmeticOperation.SUBTRACT);
 		double finalValue = targetUnit.convertFromBaseUnit(baseResult);
 
 		return new Quantity<>(roundTwoDecimals(finalValue), targetUnit);
@@ -138,7 +156,7 @@ public class Quantity<U extends IMeasurable> {
 	public double divide(Quantity<U> other) {
 		validateArithmeticOperands(other, null, false);
 
-		return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
+		return performBaseArithmetic(other, this.unit, ArithmeticOperation.DIVIDE);
 	}
 
 	// Equality & Hashing
