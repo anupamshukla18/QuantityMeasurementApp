@@ -60,7 +60,7 @@ public class QuantityMeasurementApp {
 
 		// Addition (implicit target unit)
 		System.out.println("Add L + mL: " + demonstrateAddition(volume1, volume2));
-
+ 
 		// Addition (explicit target unit)
 		System.out.println("Add L + Gallon = mL: " + demonstrateAddition(volume1, volume3, VolumeUnit.MILLILITRE));
 	}

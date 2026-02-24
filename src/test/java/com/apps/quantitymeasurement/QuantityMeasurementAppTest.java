@@ -606,6 +606,6 @@ public class QuantityMeasurementAppTest {
 		Quantity<VolumeUnit> q1 = new Quantity<>(0.5, VolumeUnit.GALLON);
 		Quantity<VolumeUnit> q2 = new Quantity<>(1.892705, VolumeUnit.LITRE);
 		Quantity<VolumeUnit> result = q1.add(q2);
-		assertTrue(result.equals(new Quantity<>(1.0, VolumeUnit.GALLON)));
+		assertTrue(result.equals(new Quantity<>(1.0, VolumeUnit.GALLON))); 
 	}
 }

@@ -92,5 +92,5 @@ public class Quantity<U extends IMeasurable> {
 	@Override
 	public String toString() {
 		return value + " " + unit.getUnitName();
-	}
+	} 
 }
