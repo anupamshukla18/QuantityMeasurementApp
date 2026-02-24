@@ -2,78 +2,62 @@ package com.apps.quantitymeasurement;
 
 public class QuantityMeasurementApp {
 
-	public static boolean demonstrateLengthEquality(Length l1, Length l2) {
-		return l1.equals(l2);
+	// generic equality demo
+	public static <U extends IMeasurable> boolean demonstrateEquality(Quantity<U> quantity1, Quantity<U> quantity2) {
+
+		return quantity1.equals(quantity2);
 	}
 
-	public static boolean demonstrateLengthComparison(double v1, LengthUnit u1, double v2, LengthUnit u2) {
-		return new Length(v1, u1).equals(new Length(v2, u2));
+	// generic conversion demo
+	// generic conversion demo
+	public static <U extends IMeasurable> Quantity<U> demonstrateConversion(Quantity<U> quantity, U targetUnit) {
+		return quantity.convertTo(targetUnit);
 	}
 
-	public static Length demonstrateLengthConversion(double value, LengthUnit fromUnit, LengthUnit toUnit) {
-		return new Length(value, fromUnit).convertTo(toUnit);
+	// generic addition (implicit target unit)
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(Quantity<U> quantity1,
+			Quantity<U> quantity2) {
+
+		return quantity1.add(quantity2);
 	}
 
-	public static Length demonstrateLengthConversion(Length length, LengthUnit toUnit) {
-		return length.convertTo(toUnit);
-	}
+	// generic addition (explicit target unit)
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(Quantity<U> quantity1, Quantity<U> quantity2,
+			U targetUnit) {
 
-	public static Length demonstrateLengthAddition(Length l1, Length l2) {
-		return l1.add(l2);
-	}
-
-	public static Length demonstrateLengthAddition(Length l1, Length l2, LengthUnit target) {
-		return l1.add(l2, target);
-	}
-
-	// ---------- WEIGHT METHODS (UC9) ----------
-
-	public static boolean demonstrateWeightEquality(Weight w1, Weight w2) {
-		return w1.equals(w2);
-	}
-
-	public static boolean demonstrateWeightComparison(double v1, WeightUnit u1, double v2, WeightUnit u2) {
-		return new Weight(v1, u1).equals(new Weight(v2, u2));
-	}
-
-	public static Weight demonstrateWeightConversion(double value, WeightUnit from, WeightUnit to) {
-		return new Weight(value, from).convertTo(to);
-	}
-
-	public static Weight demonstrateWeightConversion(Weight weight, WeightUnit toUnit) {
-		return weight.convertTo(toUnit);
-	}
-
-	public static Weight demonstrateWeightAddition(Weight w1, Weight w2) {
-		return w1.add(w2);
-	}
-
-	public static Weight demonstrateWeightAddition(Weight w1, Weight w2, WeightUnit targetUnit) {
-		return w1.add(w2, targetUnit);
+		return quantity1.add(quantity2, targetUnit);
 	}
 
 	public static void main(String[] args) {
 
-		System.out.println("===== LENGTH DEMO =====");
-		Length l1 = new Length(1, LengthUnit.FEET);
-		Length l2 = new Length(12, LengthUnit.INCHES);
-		System.out.println(l1.add(l2)); // 2 FEET
+		// ----- LENGTH DEMO -----
+		Quantity<LengthUnit> length1 = new Quantity<>(1, LengthUnit.FEET);
+		Quantity<LengthUnit> length2 = new Quantity<>(12, LengthUnit.INCHES);
 
-		System.out.println("\n===== WEIGHT DEMO =====");
+		// equality check
+		System.out.println("1 Feet equals 12 Inches : " + length1.equals(length2));
 
-		Weight w1 = new Weight(1, WeightUnit.KILOGRAM);
-		Weight w2 = new Weight(1000, WeightUnit.GRAM);
+		// conversion
+		Quantity<LengthUnit> convertedLength = length1.convertTo(LengthUnit.INCHES);
+		System.out.println("1 Feet in Inches : " + convertedLength.getValue());
 
-		System.out.println("Equality: " + w1.equals(w2));
+		// addition
+		Quantity<LengthUnit> addedLength = length1.add(length2);
+		System.out.println("1 Feet + 12 Inches in Feet : " + addedLength.getValue());
 
-		System.out.println("Conversion:");
-		System.out.println(new Weight(2, WeightUnit.POUND).convertTo(WeightUnit.KILOGRAM));
+		// ----- WEIGHT DEMO -----
+		Quantity<WeightUnit> weight1 = new Quantity<>(1, WeightUnit.KILOGRAM);
+		Quantity<WeightUnit> weight2 = new Quantity<>(1000, WeightUnit.GRAM);
 
-		System.out.println("Addition (implicit):");
-		System.out.println(new Weight(500, WeightUnit.GRAM).add(new Weight(0.5, WeightUnit.KILOGRAM)));
+		// equality check
+		System.out.println("1 Kg equals 1000 g : " + weight1.equals(weight2));
 
-		System.out.println("Addition (explicit target):");
-		System.out.println(
-				new Weight(1, WeightUnit.KILOGRAM).add(new Weight(453.592, WeightUnit.GRAM), WeightUnit.POUND));
+		// conversion
+		Quantity<WeightUnit> convertedWeight = weight1.convertTo(WeightUnit.GRAM);
+		System.out.println("1 Kg in grams : " + convertedWeight.getValue());
+
+		// addition
+		Quantity<WeightUnit> addedWeight = weight1.add(weight2);
+		System.out.println("1 Kg + 1000 g in Kg : " + addedWeight.getValue());
 	}
 }
