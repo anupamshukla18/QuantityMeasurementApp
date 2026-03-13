@@ -1,5 +1,6 @@
-package com.apps.quantitymeasurement;
+package com.apps.core;
 
+// volume units
 public enum VolumeUnit implements IMeasurable {
 
 	LITRE(1.0), MILLILITRE(0.001), GALLON(3.78541);
@@ -28,5 +29,5 @@ public enum VolumeUnit implements IMeasurable {
 	@Override
 	public String getUnitName() {
 		return this.name();
-	} 
+	}
 }

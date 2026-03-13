@@ -1,4 +1,4 @@
-package com.apps.quantitymeasurement;
+package com.apps.core;
 
 import java.util.function.Function;
 
@@ -79,41 +79,41 @@ public enum TemperatureUnit implements IMeasurable {
 		}
 	}
 
-	// UC14 SPECIAL DIRECT TEMPERATURE CONVERSION
+	// UC14 SPECIAL DIRECT TEMPERATURE CONVERSION 
 	public double convertTo(double value, TemperatureUnit target) {
 
-		if (target == null)
-			throw new IllegalArgumentException("Target temperature unit cannot be null");
+	    if (target == null)
+	        throw new IllegalArgumentException("Target temperature unit cannot be null");
 
-		if (this == target)
-			return value;
+	    if (this == target)
+	        return value;
 
-		// Step 1: Convert source → Celsius (base)
-		double celsiusValue;
-		switch (this) {
-		case CELSIUS:
-			celsiusValue = value;
-			break;
-		case FAHRENHEIT:
-			celsiusValue = (value - 32) * 5 / 9;
-			break;
-		case KELVIN:
-			celsiusValue = value - 273.15;
-			break;
-		default:
-			throw new IllegalStateException("Unexpected unit");
-		}
+	    // Step 1: Convert source → Celsius (base)
+	    double celsiusValue;
+	    switch (this) {
+	        case CELSIUS:
+	            celsiusValue = value;
+	            break;
+	        case FAHRENHEIT:
+	            celsiusValue = (value - 32) * 5 / 9;
+	            break;
+	        case KELVIN:
+	            celsiusValue = value - 273.15;
+	            break;
+	        default:
+	            throw new IllegalStateException("Unexpected unit");
+	    }
 
-		// Step 2: Convert Celsius → target
-		switch (target) {
-		case CELSIUS:
-			return celsiusValue;
-		case FAHRENHEIT:
-			return (celsiusValue * 9 / 5) + 32;
-		case KELVIN:
-			return celsiusValue + 273.15;
-		default:
-			throw new IllegalStateException("Unexpected unit");
-		}
+	    // Step 2: Convert Celsius → target
+	    switch (target) {
+	        case CELSIUS:
+	            return celsiusValue;
+	        case FAHRENHEIT:
+	            return (celsiusValue * 9 / 5) + 32;
+	        case KELVIN:
+	            return celsiusValue + 273.15;
+	        default:
+	            throw new IllegalStateException("Unexpected unit");
+	    }
 	}
 }
