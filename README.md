@@ -1,735 +1,315 @@
-# Quantity Measurement App
+## UC16 – Database Integration with JDBC for Quantity Measurement Persistence
 
-🧾 Project Overview
+### Overview
 
-The Quantity Measurement App is a Test-Driven Development (TDD) based project designed to demonstrate how to build scalable, maintainable software by starting simple and progressively adding complexity.
+UC16 enhances the **Quantity Measurement Application** by introducing **persistent storage using JDBC**.
+In the previous use case (UC15), the application followed an **N-Tier Architecture** with an in-memory cache repository.
+UC16 extends this design by implementing a **database repository layer** that stores measurement operations in a relational database.
 
-The application focuses on comparing and converting length measurements across different units while strictly following:
+The system now supports **long-term persistence**, enabling storage, retrieval, and analysis of measurement operations.
 
-Test Driven Development (TDD)
+---
 
-Incremental Development
+### Architecture
 
-Clean Code Principles
+The application continues to follow the **layered N-Tier architecture** introduced in UC15.
 
-DRY (Don't Repeat Yourself)
+```
+Application Layer
+        |
+        v
+Controller Layer
+        |
+        v
+Service Layer
+        |
+        v
+Repository Layer
+        |
+        v
+Database (H2)
+```
 
-Proper Git Workflow (feature branches + PR)
+---
 
-The project is built step-by-step through Use Cases (UCs).
-Each UC introduces a small feature and refactors the design to keep the code maintainable and extensible.
+### Layers Description
 
-🧪 Development Methodology
+#### Application Layer
 
-This project follows the TDD Cycle:
+Entry point of the application.
 
-🔴 Write failing test
+Class:
 
-🟢 Write minimal code to pass
+```
+QuantityMeasurementApp
+```
 
-🔵 Refactor without breaking tests
+Responsibilities:
 
-This ensures:
+* Initialize repository implementation
+* Configure database settings
+* Start application execution
+* Display measurement history
 
-Safety
+---
 
-Maintainability
+#### Controller Layer
 
-Scalability
+Handles user requests and delegates them to the service layer.
 
-🌳 Git Workflow Used
+Class:
 
-We followed a professional branching strategy:
+```
+QuantityMeasurementController
+```
 
-main → stable production code
+Responsibilities:
 
-dev → integration branch
+* Accept input quantities
+* Call service methods
+* Display results
+* Handle user interaction logic
 
-feature/UCx-\* → individual feature branches
+---
 
-Each UC was:
+#### Service Layer
 
-Developed in feature branch
+Contains the core business logic for quantity operations.
 
-Tested locally
+Interface:
 
-Pushed & PR created
+```
+IQuantityMeasurementService
+```
 
-Merged into dev
+Implementation:
 
-📚 USE CASE IMPLEMENTATION
+```
+QuantityMeasurementServiceImpl
+```
 
-## 🟢 UC1 — Feet Equality
+Supported operations:
 
-🎯 Goal
+* Compare quantities
+* Convert units
+* Add quantities
+* Subtract quantities
+* Divide quantities
 
-Compare two Feet measurements for equality.
+Responsibilities:
 
-🧪 Tests Written
+* Perform business logic
+* Validate measurement categories
+* Convert units before operations
+* Persist results through repository layer
 
-We validated the equals contract:
+---
 
-Same value → equal
+#### Repository Layer
 
-Different value → not equal
+Responsible for storing and retrieving measurement data.
 
-Null comparison → false
+Interface:
 
-Different object type → false
+```
+IQuantityMeasurementRepository
+```
 
-Same reference → true
+Implementations:
 
-💻 Implementation
+```
+QuantityMeasurementCacheRepository
+QuantityMeasurementDatabaseRepository
+```
 
-Created Feet class with:
+Repository Types:
 
-value field
+| Repository          | Description                      |
+| ------------------- | -------------------------------- |
+| Cache Repository    | In-memory storage used in UC15   |
+| Database Repository | JDBC implementation used in UC16 |
 
-equals() method
+Responsibilities:
 
-🧠 Learning Outcome
+* Store measurement operations
+* Retrieve measurement history
+* Query operations
+* Delete stored records
 
-Understanding equality contract
+---
 
-First step of TDD
+### Database Integration
 
-## 🟢 UC2 — Inches Equality
+UC16 introduces **JDBC-based persistence** using the **H2 database**.
 
-🎯 Goal
+Database Configuration:
 
-Support Inches unit in addition to Feet.
+```
+jdbc:h2:./quantitydb
+```
 
-🧪 Tests Written
+Database Table:
 
-Repeated same equality tests for:
+```
+QUANTITY_MEASUREMENT_ENTITY
+```
 
-Inches = Inches
+Table Structure:
 
-💻 Implementation
+| Column        | Description                          |
+| ------------- | ------------------------------------ |
+| id            | Primary key                          |
+| operation     | Operation type (ADD, SUBTRACT, etc.) |
+| operand1      | First quantity                       |
+| operand2      | Second quantity                      |
+| result        | Operation result                     |
+| error_message | Error information                    |
+| created_at    | Timestamp of operation               |
 
-Created Inches class similar to Feet.
+---
 
-⚠️ Problem Observed
+### Database Utilities
 
-Huge code duplication:
+#### ApplicationConfig
 
-Feet and Inches had identical logic.
+Loads configuration from `application.properties`.
 
-🧠 Learning Outcome
+Responsibilities:
 
-Recognized need for refactoring (DRY violation).
+* Load database URL
+* Load username and password
+* Load repository configuration
 
-Adding features without modifying logic
+---
 
-## 🔵 UC3 — Refactor to Generic Length Class
+#### ConnectionPool
 
-🎯 Goal
+Manages database connections.
 
-Remove duplication by introducing a generic measurement model.
+Responsibilities:
 
-🛠 Refactoring Done
+* Maintain connection pool
+* Reuse database connections
+* Improve performance
+* Prevent connection overhead
 
-Removed:
+---
 
-❌ Feet class
+### Exception Handling
 
-❌ Inches class
+New exception introduced:
 
-Introduced:
+```
+DatabaseException
+```
 
-✅ Length class
+Purpose:
 
-✅ LengthUnit enum
+* Handle JDBC errors
+* Provide meaningful error messages
+* Prevent application crashes
 
-🧠 Core Design Change
+---
 
-Instead of multiple classes:
+### Persistence Flow
 
-Feet
-Inches
+Example Flow for Addition Operation:
 
-We created one generic model:
+```
+Controller receives request
+        |
+        v
+Service performs validation and conversion
+        |
+        v
+Repository saves operation in database
+        |
+        v
+Database stores measurement record
+```
 
-Length(value, LengthUnit)
-📐 Base Unit Concept
+---
 
-All units converted internally to INCHES (base unit).
+### Technologies Used
 
-FEET → 12 inches
-INCHES → 1 inch
+| Technology      | Purpose                         |
+| --------------- | ------------------------------- |
+| Java            | Core application logic          |
+| Maven           | Build and dependency management |
+| JDBC            | Database connectivity           |
+| H2 Database     | Lightweight embedded database   |
+| JUnit 5         | Unit testing                    |
+| Mockito         | Mocking for tests               |
+| SLF4J + Logback | Logging framework               |
 
-Added method:
+---
 
-convertToBaseUnit()
-🧪 Tests Covered
+### Key Features Introduced in UC16
 
-✔ Feet = Feet
-✔ Inches = Inches
-✔ 1 Foot = 12 Inches
-✔ Symmetry
-✔ Transitive equality
-✔ equals contract validation
+* JDBC-based database persistence
+* H2 embedded database integration
+* Connection pooling for database performance
+* Configurable repository implementation
+* SQL-based data storage
+* Secure parameterized queries
+* Improved logging using SLF4J
+* Extended unit and integration testing
+* Maven dependency management
 
-🧠 Learning Outcome
+---
 
-Refactoring safely using tests
+### Advantages of UC16 Implementation
 
-Generic design
+| Improvement        | Benefit                            |
+| ------------------ | ---------------------------------- |
+| Persistent Storage | Data survives application restarts |
+| JDBC Integration   | Standard database connectivity     |
+| Connection Pooling | Efficient resource usage           |
+| Query Support      | Retrieve measurement history       |
+| Database Schema    | Structured data storage            |
+| Scalability        | Supports larger datasets           |
 
-Domain modeling
+---
 
-DRY principle
+### Testing
 
-## 🟣 UC4 — Add New Units (Extensibility Proof)
+JUnit test cases verify:
 
-🎯 Goal
+* Database connection creation
+* Repository CRUD operations
+* SQL query execution
+* Connection pool functionality
+* Data persistence
+* Service layer integration
+* Controller functionality
 
-Prove that the design is scalable by adding new units without modifying core logic.
+All **UC1–UC15 test cases continue to pass**, ensuring backward compatibility.
 
-➕ New Units Added
+---
 
-YARDS
+### Postconditions
 
-CENTIMETERS
+After implementing UC16:
 
-Updated enum only — no logic changes.
+* The application supports **database persistence**
+* Measurement operations are stored in a **relational database**
+* The repository layer supports **both cache and database storage**
+* Database queries can retrieve stored measurements
+* Connection pooling improves performance
+* The system is ready for **future REST API integration**
+* The project follows a **professional Maven project structure**
 
-📐 Conversion Factors
-Unit Inches
-1 Foot 12
-1 Yard 36
-1 Inch 1
-1 cm 0.393701
-🧪 Tests Added
+---
 
-✔ Yard = Yard
-✔ Yard = Feet
-✔ Yard = Inches
-✔ Feet = Yard (symmetry)
-✔ Inches = Yard (symmetry)
-✔ Centimeter = Inches
-✔ Centimeter ≠ Feet
-✔ Transitive property
+### Summary
 
-🧠 Learning Outcome
+UC16 transforms the Quantity Measurement Application from an **in-memory system** into a **database-backed application** using JDBC.
 
-Extensible architecture
+This enhancement improves:
 
-Open/Closed Principle
+* Persistence
+* Scalability
+* Maintainability
+* Data analysis capabilities
 
-Adding features without modifying logic
-
-## 🔵 UC5 — Unit Conversion
-
-🎯 Goal
-
-Add the ability to convert length from one unit to another.
-
-Until UC4, the app could only compare units.
-UC5 introduces an explicit conversion API.
-
-⚙️ Features Added
-
-Static conversion method
-
-convert(value, fromUnit, toUnit)
-
-Instance conversion method in Length class
-
-length.convertTo(targetUnit)
-
-Overloaded helper methods for easy usage.
-
-🧪 Test Coverage
-
-Feet ↔ Inches conversion
-
-Yards ↔ Inches conversion
-
-Centimeters ↔ Inches conversion
-
-Zero & negative values
-
-Round-trip conversion
-
-Null & NaN validation
-
-🧠 Learning Outcome
-
-UC5 demonstrates:
-
-Reusable design from previous UCs
-
-Clean API design
-
-Validation & edge-case handling
-
-## UC6 – Addition of Two Length Units
-
-Overview
-
-UC6 extends the Quantity Measurement App by adding addition operations between two length measurements.
-Users can now add values with same or different units and get the result in the unit of the first operand.
-
-Example:
-
-1 Foot + 12 Inches = 2 Feet
-
-What was implemented
-
-Added add() method in Length class
-
-Supports addition across units:
-
-Feet, Inches, Yards, Centimeters
-
-Uses base unit normalization (inches) before addition
-
-Returns a new immutable Length object
-
-Maintains floating-point precision using rounding
-
-Ensures input validation and error handling
-
-Key Features
-
-Same-unit addition (Feet + Feet)
-
-Cross-unit addition (Feet + Inches, Yards + Feet, etc.)
-
-Result returned in unit of first operand
-
-Supports zero, negative, large and small values
-
-Null and invalid inputs throw exceptions
-
-Addition follows commutative property
-
-Example Usage
-Length l1 = new Length(1, Length.LengthUnit.FEET);
-Length l2 = new Length(12, Length.LengthUnit.INCHES);
-
-Length result = l1.add(l2);
-System.out.println(result); // 2.00 FEET
-
-## UC7 – Addition with Target Unit Specification
-
-Overview
-
-UC7 extends the length addition feature by allowing the caller to explicitly choose the unit of the result.
-Instead of always returning the result in the unit of the first operand (UC6), the result can now be returned in any supported length unit.
-
-What was implemented
-
-Added overloaded add method to support target unit:
-
-add(Length length1, Length length2, LengthUnit targetUnit)
-
-Both lengths are:
-
-Converted to base unit (inches)
-
-Added together
-
-Converted to the specified target unit
-
-Returned as a new immutable Length object
-
-Supported Units
-
-FEET
-
-INCHES
-
-YARDS
-
-CENTIMETERS
-
-Key Features
-
-Explicit control over result unit
-
-Maintains immutability of objects
-
-Reuses conversion logic from UC5
-
-Maintains backward compatibility with UC6
-
-Validates null units and invalid inputs
-
-Example
-Input Target Unit Result
-1 ft + 12 in FEET 2 ft
-1 ft + 12 in INCHES 24 in
-1 ft + 12 in YARDS 0.667 yd
-Concepts Covered
-
-Method Overloading
-
-DRY Principle (shared conversion logic)
-
-Explicit parameter design
-
-Floating-point precision handling
-
-Robust validation & exception handling
-
-## 📘 UC8 – Refactoring Unit Enum to Standalone Class
-
-🔹 Overview
-
-UC8 refactors the architecture by extracting LengthUnit enum from the Length class into a standalone top-level enum.
-This follows the Single Responsibility Principle (SRP) and makes the design scalable for future measurement types (Weight, Volume, Temperature).
-
-🔹 What Changed in UC8
-
-LengthUnit moved to its own class.
-
-All conversion logic is now handled inside LengthUnit.
-
-Length class now focuses only on:
-
-equality
-
-conversion delegation
-
-addition operations
-
-Circular dependency risk removed.
-
-All UC1 → UC7 functionality works without any change.
-
-🔹 New Capabilities
-
-Units now handle:
-
-convertToBaseUnit()
-
-convertFromBaseUnit()
-
-Cleaner architecture & better separation of concerns.
-
-Easy to add new measurement categories in future.
-
-🔹 Result
-
-No breaking changes.
-
-All previous tests pass.
-
-## UC9- Addition of Weight Measurement
-
-📌 Feature Added
-
-UC9 extends the Quantity Measurement App by introducing a new measurement category: Weight.
-
-The system now supports multiple independent measurement categories:
-
-Length (existing UC1–UC8)
-
-Weight (new in UC9)
-
-⚖️ Supported Weight Units
-Unit Base Conversion
-Kilogram (kg) Base unit
-Gram (g) 1 kg = 1000 g
-Pound (lb) 1 lb = 0.453592 kg
-🚀 Capabilities Implemented
-1️⃣ Equality Comparison
-
-Weight objects can be compared across units.
-Example:
-
-1 kg == 1000 g
-
-2.20462 lb == 1 kg
-
-2️⃣ Unit Conversion
-
-Weights can be converted between all units.
-Examples:
-
-kg → g
-
-g → lb
-
-lb → kg
-
-3️⃣ Addition Operations
-
-Two weights can be added:
-
-Result in first operand unit
-
-Result in explicit target unit
-
-Examples:
-
-1 kg + 1000 g = 2 kg
-
-1 kg + 1000 g (GRAM) = 2000 g
-
-4️⃣ Category Type Safety
-
-Weight and Length cannot be compared.
-Example:
-
-1 kg != 1 foot
-
-5️⃣ Immutability & Precision
-
-All operations return new objects
-
-Round-trip conversions maintain accuracy
-
-Works with zero, negative & large values
-
-🧠 Key Learning
-
-Multiple measurement categories design
-
-Reusable enum-based conversion architecture
-
-Type safety across domains
-
-Arithmetic on Value Objects
-
-## 🔹 UC10 — Generic Quantity Measurement using Interface & Generics
-
-In this UC, the application was refactored to a generic architecture to support multiple measurement types using a common design.
-
-🎯 What was implemented
-1️⃣ Introduced a common interface
-
-Created IMeasurable interface to standardize unit behavior:
-
-Conversion to base unit
-
-Conversion from base unit
-
-Unit name access
-
-This allows any future unit type (Temperature, Volume, etc.) to plug into the system easily.
-
-2️⃣ Refactored Unit Enums
-
-Both enums now implement IMeasurable:
-
-LengthUnit
-
-WeightUnit
-
-Each unit now defines:
-
-Conversion factor to base unit
-
-Conversion logic
-
-3️⃣ Created Generic Quantity Class
-
-Introduced reusable generic class:
-
-Quantity<U extends IMeasurable>
-
-Capabilities:
-
-Compare quantities across units
-
-Convert between units
-
-Add quantities
-
-Add quantities with target unit
-
-Validation & immutability
-
-This removed duplication and made the design scalable and extensible.
-
-4️⃣ Multi-Domain Support
-
-Application now supports:
-
-Length conversions & arithmetic
-
-Weight conversions & arithmetic
-
-5️⃣ Extensive Test Coverage
-
-Added 30+ unit tests covering:
-
-Enum conversion logic
-
-Equality checks
-
-Conversions
-
-Addition
-
-Null & invalid inputs
-
-HashCode & immutability
-
-Backward compatibility
-
-## UC11 — Volume Measurement Support
-
-This use case demonstrates the scalability of the generic Quantity architecture by introducing a new measurement category Volume without modifying existing classes.
-
-What was added
-
-Introduced new enum VolumeUnit implementing IMeasurable
-
-Supported units:
-
-LITRE (base unit)
-
-MILLILITRE
-
-GALLON
-
-Key Achievements
-
-No changes required in Quantity, LengthUnit, or WeightUnit
-
-Generic design automatically supports new unit categories
-
-Added 50 comprehensive test cases for volume:
-
-Equality
-
-Conversion
-
-Addition
-
-Cross-category safety
-
-Precision & immutability
-
-This UC proves the system is open for extension and closed for modification (OCP).
-
-## UC12 – Subtraction & Division Support
-
-In this use case, we enhanced the generic Quantity system by adding arithmetic operations beyond addition.
-
-Features Added
-
-subtract(Quantity<U> other)
-
-subtract(Quantity<U> other, U targetUnit)
-
-divide(Quantity<U> other)
-
-Key Improvements
-
-Supports subtraction across compatible units
-
-Supports subtraction with explicit target unit
-
-Supports division (returns ratio as double)
-
-Cross-category safety maintained (Length ≠ Weight ≠ Volume)
-
-Division by zero handled using ArithmeticException
-
-Improved output readability using overridden toString()
-
-Design Impact
-
-No architectural change required
-
-Generic design remains scalable
-
-Fully backward compatible with UC1–UC11
-
-## 📄 UC13 – Centralized Arithmetic Logic (DRY Refactor)
-🎯 Objective
-
-Refactor arithmetic operations in Quantity class to remove code duplication and enforce the DRY (Don’t Repeat Yourself) principle while keeping behaviour unchanged.
-
-✨ Enhancements
-
-Introduced ArithmeticOperation enum to centralize arithmetic logic.
-
-Added validateArithmeticOperands() to unify validation across operations.
-
-Added performBaseArithmetic() helper to execute arithmetic in base units.
-
-All public APIs remain unchanged (backward compatible with UC12).
-
-➕ Refactored Operations
-
-Addition
-
-Subtraction
-
-Division
-
-All now delegate to centralized helper methods.
-
-🧪 Testing
-
-New tests added to verify:
-
-Helper delegation
-
-Enum-based arithmetic dispatch
-
-Validation consistency across operations
-
-Backward compatibility with UC12 behaviour
-
-All tests passing ✅
-
-🏁 Outcome
-
-Code duplication removed
-
-Improved maintainability & scalability
-
-Ready for future arithmetic operations (multiply, modulo, etc.)
-
-## UC14 – Temperature Measurement (Non-Arithmetic Quantity)
-
-Overview:
-In this UC we extended the Quantity Measurement App to support Temperature units while enforcing that temperature does NOT support arithmetic operations (add, subtract, divide).
-This demonstrates how to safely introduce new measurement categories with different behavior using interfaces and functional programming.
-
-Key Enhancements:
-
-Added new measurement category Temperature
-
-Supported units:
-
-Celsius
-
-Fahrenheit
-
-Kelvin
-
-Implemented temperature conversion formulas:
-
-°C ↔ °F
-
-°C ↔ K
-
-°F ↔ K
-
-Introduced SupportsArithmetic functional interface
-
-Arithmetic operations now:
-
-✅ Allowed → Length, Weight, Volume
-
-❌ Blocked → Temperature (throws UnsupportedOperationException)
-
-Added 40+ unit tests validating:
-
-Equality across temperature units
-
-Conversion accuracy
-
-Round-trip conversion
-
-Extreme values & precision
-
-Unsupported arithmetic validation
+The system now supports long-term storage of measurement operations and prepares the application for **future enterprise-level features such as REST APIs and distributed deployment**.
