@@ -1,33 +1,92 @@
-HELP.md
+
+# ===============================
+# Maven Build Files
+# ===============================
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+!.mvn/wrapper/maven-wrapper.jar
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# ===============================
+# Maven Wrapper (KEEP these tracked)
+# ===============================
+# DO NOT IGNORE:
+# .mvn/
+# mvnw
+# mvnw.cmd
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# ===============================
+# Logs
+# ===============================
+*.log
+logs/
+
+# ===============================
+# Compiled Java Files
+# ===============================
+*.class
+
+# ===============================
+# Package Files
+# ===============================
+*.jar
+*.war
+*.ear
+
+# ===============================
+# IDE - IntelliJ IDEA
+# ===============================
+.idea/
 *.iml
+*.iws
 *.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# ===============================
+# IDE - Eclipse / STS
+# ===============================
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
 
-### VS Code ###
+# ===============================
+# IDE - VS Code
+# ===============================
 .vscode/
+
+# ===============================
+# OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Environment & Secrets
+# ===============================
+.env
+.env.*
+application-local.properties
+application-prod.properties
+application-prod.yml
+application-secrets.properties
+application-secrets.yml
+
+# ===============================
+# Database / Dump (OPTIONAL)
+# ===============================
+# If your dump contains large or sensitive data, uncomment below:
+# dump/*.sql
+
+# ===============================
+# Testing / Coverage
+# ===============================
+coverage/
+
+# ===============================
+# Misc
+# ===============================
+*.swp
+
+.factorypath
+.gitattributes
+HELP.md
