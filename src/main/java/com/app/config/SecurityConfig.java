@@ -1,42 +1,76 @@
 package com.app.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.*;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.app.security.JwtAuthFilter;
+import com.app.security.OAuth2SuccessHandler;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
-@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            // Disable CSRF for REST API
-            .csrf(csrf->csrf.disable())
+            .csrf(csrf -> csrf.disable())
 
-            // Allow all requests for development
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/api/v1/quantities/**",  // REST API endpoints
-                    "/h2-console/**",          // H2 Console
-                    "/swagger-ui/**",          // Swagger UI
-                    "/swagger-ui.html",        // Swagger UI HTML
-                    "/api-docs/**",            // OpenAPI docs
-                    "/actuator/**"             // Actuator endpoints
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/api-docs/**",
+                        "/h2-console/**"
                 ).permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
+                //  .anyRequest().permitAll()  -> for testing 
             )
 
-            // Allow H2 console frames
-            .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions.disable())
-            );
+            .oauth2Login(oauth -> oauth
+            	    .successHandler(oAuth2SuccessHandler)
+            	)
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                    })
+                )
+            
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
 
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 }
