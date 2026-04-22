@@ -48,6 +48,7 @@ logs/
 .springBeans
 .sts4-cache
 .apt_generated
+.metadata
 
 # ===============================
 # IDE - VS Code

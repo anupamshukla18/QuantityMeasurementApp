@@ -12,161 +12,49 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/v1/quantities")
-@Tag(name = "Quantity Measurements", description = "REST API for quantity measurement operations")
+@Tag(name = "Quantity Measurements", description = "REST API for quantity operations")
 public class QuantityMeasurementController {
 
-    @Autowired
-    private IQuantityMeasurementService service;
+	@Autowired
+	private IQuantityMeasurementService service;
 
-    // ================= COMPARE =================
+	@PostMapping("/compare")
+	@Operation(summary = "Compare two quantities")
+	public ResponseEntity<QuantityMeasurementDTO> compareQuantities(@Valid @RequestBody QuantityInputDTO input) {
+		QuantityMeasurementDTO response = service.compare(input);
+		return response.isError()
+				? ResponseEntity.badRequest().body(response)
+				: ResponseEntity.ok(response);
+	}
 
-    @PostMapping("/compare")
-    @Operation(summary = "Compare two quantities")
-    public ResponseEntity<QuantityMeasurementDTO> compareQuantities(
-            @Valid @RequestBody QuantityInputDTO quantityInputDTO) {
+	@PostMapping("/add")
+	@Operation(summary = "Add two quantities")
+	public ResponseEntity<QuantityMeasurementDTO> addQuantities(@Valid @RequestBody QuantityInputDTO input) {
+		QuantityMeasurementDTO response = service.add(input);
+		return response.isError()
+				? ResponseEntity.badRequest().body(response)
+				: ResponseEntity.ok(response);
+	}
 
-        try {
-            QuantityMeasurementDTO result = service.compare(quantityInputDTO);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            QuantityMeasurementDTO error = new QuantityMeasurementDTO();
-            error.setErrorMessage(e.getMessage());
-            error.setError(true);
-            return ResponseEntity.badRequest().body(error);
+	@GetMapping("/history/operation/{operation}")
+	@Operation(summary = "Get operation history by type")
+	public ResponseEntity<List<QuantityMeasurementDTO>> getOperationHistory(@PathVariable String operation) {
+		return ResponseEntity.ok(service.getHistoryByOperation(operation));
+	}
+	@PostMapping("/convert")
+    public ResponseEntity<QuantityMeasurementDTO> convertQuantity(@Valid @RequestBody QuantityInputDTO input) {
+        QuantityMeasurementDTO response = service.convert(input);
+        
+        // If the service caught an error (like incompatible units), return a 400 Bad Request
+        if (response.isError()) {
+            return ResponseEntity.badRequest().body(response);
         }
+        
+        // Otherwise, return 200 OK
+        return ResponseEntity.ok(response);
     }
-
-    // ================= CONVERT =================
-
-    @PostMapping("/convert")
-    @Operation(summary = "Convert a quantity to another unit")
-    public ResponseEntity<QuantityMeasurementDTO> convertQuantity(
-            @Valid @RequestBody QuantityInputDTO quantityInputDTO) {
-
-        try {
-            QuantityMeasurementDTO result = service.convert(quantityInputDTO);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            QuantityMeasurementDTO error = new QuantityMeasurementDTO();
-            error.setErrorMessage(e.getMessage());
-            error.setError(true);
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    // ================= ADD =================
-
-    @PostMapping("/add")
-    @Operation(summary = "Add two quantities")
-    public ResponseEntity<QuantityMeasurementDTO> addQuantities(
-            @Valid @RequestBody QuantityInputDTO quantityInputDTO) {
-
-        try {
-            QuantityMeasurementDTO result = service.add(quantityInputDTO);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            QuantityMeasurementDTO error = new QuantityMeasurementDTO();
-            error.setErrorMessage(e.getMessage());
-            error.setError(true);
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    // ================= SUBTRACT =================
-
-    @PostMapping("/subtract")
-    @Operation(summary = "Subtract two quantities")
-    public ResponseEntity<QuantityMeasurementDTO> subtractQuantities(
-            @Valid @RequestBody QuantityInputDTO quantityInputDTO) {
-
-        try {
-            QuantityMeasurementDTO result = service.subtract(quantityInputDTO);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            QuantityMeasurementDTO error = new QuantityMeasurementDTO();
-            error.setErrorMessage(e.getMessage());
-            error.setError(true);
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    // ================= DIVIDE =================
-
-    @PostMapping("/divide")
-    @Operation(summary = "Divide two quantities")
-    public ResponseEntity<QuantityMeasurementDTO> divideQuantities(
-            @Valid @RequestBody QuantityInputDTO quantityInputDTO) {
-
-        try {
-            QuantityMeasurementDTO result = service.divide(quantityInputDTO);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            QuantityMeasurementDTO error = new QuantityMeasurementDTO();
-            error.setErrorMessage(e.getMessage());
-            error.setError(true);
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    // ================= HISTORY BY OPERATION =================
-
-    @GetMapping("/history/operation/{operation}")
-    @Operation(summary = "Get quantity measurement history by operation type")
-    public ResponseEntity<List<QuantityMeasurementDTO>> getHistoryByOperation(
-            @PathVariable String operation) {
-
-        try {
-            List<QuantityMeasurementDTO> result = service.getHistoryByOperation(operation);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    // ================= HISTORY BY MEASUREMENT TYPE =================
-
-    @GetMapping("/history/type/{measurementType}")
-    @Operation(summary = "Get quantity measurement history by measurement type")
-    public ResponseEntity<List<QuantityMeasurementDTO>> getHistoryByMeasurementType(
-            @PathVariable String measurementType) {
-
-        try {
-            List<QuantityMeasurementDTO> result = service.getHistoryByMeasurementType(measurementType);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    // ================= OPERATION COUNT =================
-
-    @GetMapping("/count/{operation}")
-    @Operation(summary = "Get count of successful operations by operation type")
-    public ResponseEntity<Long> getOperationCount(
-            @PathVariable String operation) {
-
-        try {
-            long count = service.getOperationCount(operation);
-            return ResponseEntity.ok(count);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    // ================= ERROR HISTORY =================
-
-    @GetMapping("/history/errored")
-    @Operation(summary = "Get all errored quantity measurements")
-    public ResponseEntity<List<QuantityMeasurementDTO>> getErrorHistory() {
-
-        try {
-            List<QuantityMeasurementDTO> result = service.getErrorHistory();
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
+	
 }

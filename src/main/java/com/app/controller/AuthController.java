@@ -1,60 +1,33 @@
 package com.app.controller;
 
-import jakarta.validation.Valid;
+import com.app.repository.UserRepository;
+import com.app.security.JwtUtils;
+import com.app.dto.LoginRequest;
+import com.app.dto.RegisterRequest;
+import com.app.model.UserEntity;
+import com.app.dto.JwtResponse;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
-import com.app.dto.*;
-import com.app.exception.DuplicateEmailException;
-import com.app.model.User;
-import com.app.repository.UserRepository;
-import com.app.service.JwtService;
-
-@CrossOrigin
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
-    private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
 
-    // REGISTER
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
-
-        if (repository.existsByEmail(request.getEmail())) {
-            throw new DuplicateEmailException("Email already exists");
-        }
-
-        if (repository.existsByMobileNumber(request.getMobileNumber())) {
-            throw new RuntimeException("Mobile number already exists");
-        }
-
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .mobileNumber(request.getMobileNumber())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
-
-        repository.save(user);
-
-        return ResponseEntity.ok("User registered successfully");
-    }
-
-    // LOGIN
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -62,41 +35,25 @@ public class AuthController {
                 )
         );
 
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        String token = jwtService.generateToken(user);
-
-        return new AuthResponse(token, "Login successful");
+        String token = jwtUtils.generateJwtToken(request.getEmail());
+        return ResponseEntity.ok(new JwtResponse(token));
     }
-    
-    @GetMapping("/oauth-success")
-    public ResponseEntity<AuthResponse> oauthSuccess(Authentication authentication) {
 
-    	String emailTemp = ((OAuth2User) authentication.getPrincipal())
-    	        .getAttribute("email");
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already registered!");
+        }
 
-    	if (emailTemp == null) {
-    	    emailTemp = ((OAuth2User) authentication.getPrincipal())
-    	            .getAttribute("login") + "@github.com";
-    	}
+        UserEntity user = new UserEntity();
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole("ROLE_USER");
+        user.setProvider("local");
 
-    	final String email = emailTemp;
+        userRepository.save(user);
 
-        // check if user exists
-        User user = repository.findByEmail(email)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(email)
-                            .name("GitHub User")
-                            .mobileNumber("0000000000")
-                            .password("oauth")
-                            .build();
-                    return repository.save(newUser);
-                });
-
-        String token = jwtService.generateToken(user);
-
-        return ResponseEntity.ok(new AuthResponse(token, "OAuth login successful"));
+        return ResponseEntity.ok("User registered successfully!");
     }
 }

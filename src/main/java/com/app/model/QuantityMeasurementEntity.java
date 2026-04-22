@@ -4,82 +4,42 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-    name = "quantity_measurement_entity",
-    indexes = {
-        @Index(name = "idx_operation",        columnList = "operation"),
-        @Index(name = "idx_measurement_type", columnList = "this_measurement_type"),
-        @Index(name = "idx_created_at",       columnList = "created_at")
-    }
-)
+@Table(name = "quantity_measurement_history")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuantityMeasurementEntity {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	private Double thisValue;
+	private String thisUnit;
+	private String thisMeasurementType;
 
-    @Column(name = "this_value", nullable = false)
-    private double thisValue;
+	private Double thatValue;
+	private String thatUnit;
+	private String thatMeasurementType;
 
-    @Column(name = "this_unit", nullable = false)
-    private String thisUnit;
+	@Enumerated(EnumType.STRING)
+	private OperationType operation;
 
-    @Column(name = "this_measurement_type", nullable = false)
-    private String thisMeasurementType;
+	private String resultString;
+	private Double resultValue;
+	private String resultUnit;
+	private String resultMeasurementType;
 
-    @Column(name = "that_value", nullable = false)
-    private double thatValue;
+	private String errorMessage;
+	private boolean isError;
 
-    @Column(name = "that_unit", nullable = false)
-    private String thatUnit;
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
 
-    @Column(name = "that_measurement_type", nullable = false)
-    private String thatMeasurementType;
-
-    // e.g. "COMPARE", "CONVERT", "ADD", "SUBTRACT", "DIVIDE"
-    @Column(name = "operation", nullable = false)
-    private String operation;
-
-    @Column(name = "result_string", nullable = true)
-    private String resultString;
-
-    @Column(name = "result_value", nullable = true)
-    private double resultValue;
-
-    @Column(name = "result_unit", nullable = true)
-    private String resultUnit;
-
-    @Column(name = "result_measurement_type", nullable = true)
-    private String resultMeasurementType;
-
-    @Column(name = "error_message", nullable = true)
-    private String errorMessage;
-
-    @Column(name = "is_error", nullable = false)
-    private boolean isError;
-
-    @Column(name = "created_at", nullable = true)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = true)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = LocalDateTime.now();
+	}
 }
